@@ -1,0 +1,26 @@
+# Basic config File
+# Where is the workflow
+wdir: "/vol/cloud/geogenetics/repos/kegg-db-setup"
+# Where is the data
+sdir: "/vol/cloud/geogenetics/DBs/kegg/20220228/genes"
+# Where is the output
+rdir: "/vol/cloud/geogenetics/kegg-db-setup/results"
+
+###############################################################################
+#
+# Common config values
+#
+###############################################################################
+#Add binary paths
+seqkit_bin: "seqkit"
+mmseqs_bin: /vol/cloud/geogenetics/opt/bin/mmseqs
+# Program parameters
+# Threads
+seqkit_threads: 16
+mmseq_cluster_threads: 4
+
+# Clustering parameters
+mmseqs_cluster_min_seq_id: 0.9
+mmseqs_cluster_coverage: 0.8
+mmseqs_cluster_coverage_mode: 0
+mmseqs_cluster_mode: 2
