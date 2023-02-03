@@ -37,7 +37,7 @@ rule kegg_genes_cluster:
             + "/benchmarks/kegg-genes-cluster/{ko}-i{identity}-c{coverage}.bmk"
         )
     message:
-        """--- Concatenate KEGG genes databases ---"""
+        """--- Cluster KEGG genes database by KO ---"""
     shell:
         """
         echo "--- Cluster KEGG genes ---"
@@ -54,21 +54,12 @@ rule kegg_genes_cluster:
         N=$(wc -l {input.subdb_index} | awk '{{print $1}}')
 
         if [[ ${{N}} -gt 0 ]]; then
-            if [[ ${{N}} -gt 10 ]]; then
-                {params.mmseqs_bin} cluster {input.subdb} {params.cludb} {params.tmp} \
-                    -c {params.coverage} \
-                    --min-seq-id {params.min_seq_id} \
-                    --cov-mode {params.coverage_mode} \
-                    --cluster-mode {params.cluster_mode} \
-                    --threads {threads} 
-            else
-                {params.mmseqs_bin} linclust {input.subdb} {params.cludb} {params.tmp} \
-                    -c {params.coverage} \
-                    --min-seq-id {params.min_seq_id} \
-                    --cov-mode {params.coverage_mode} \
-                    --cluster-mode {params.cluster_mode} \
-                    --threads {threads} 
-            fi
+            {params.mmseqs_bin} cluster {input.subdb} {params.cludb} {params.tmp} \
+                -c {params.coverage} \
+                --min-seq-id {params.min_seq_id} \
+                --cov-mode {params.coverage_mode} \
+                --cluster-mode {params.cluster_mode} \
+                --threads {threads} 
             {params.mmseqs_bin} result2repseq {input.subdb} {params.cludb} {params.clu_rep} --threads {threads}
             {params.mmseqs_bin} result2flat {input.subdb} {input.subdb} {params.clu_rep} {params.fasta} --use-fasta-header 1
             gzip {params.fasta}

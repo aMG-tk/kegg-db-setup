@@ -9,25 +9,20 @@ import datatable as dt
 """
 Author: A. Fernandez-Guerra
 Affiliation: Lundbeck Foundation GeoGenetics Centre
-Aim: Assembly and initial analysis of ventilation samples
-Run: snakemake   -s Snakefile
+Aim: Create a snakemake workflow to download and process KEGG genes
+Run: snakemake -s Snakefile
 """
 #
 ##### set minimum snakemake version #####
-min_version("5.20.1")
+min_version("7.18.0")
 
-# configfile: "config/config.yaml"
-# report: "report/workflow.rst"
 
 # This should be placed in the Snakefile.
 
 """
 Working directory
 """
-
-
 workdir: config["wdir"]
-
 
 # message("The current working directory is " + WDIR)
 
@@ -43,21 +38,21 @@ ko_list = dt.fread(
     nthreads=config["seqkit_threads"],
     columns=["KO", "Gene"],
 ).to_pandas()
-#ko_list = pd.read_csv(ko_list_file, sep="\t", names=["KO", "Gene"])
-#ko_list.replace("ko:", "")
+# ko_list = pd.read_csv(ko_list_file, sep="\t", names=["KO", "Gene"])
+# ko_list.replace("ko:", "")
 ko_list["KO"] = ko_list["KO"].str.replace("ko:", "")
 ko_list = ko_list.groupby("KO")
 kos = [ko for ko, _ in ko_list]
 
-localrules: kegg_genes_summarize
+
+localrules:
+    kegg_genes_summarize,
+
 
 rule all:
     input:
         done_concat_db=config["rdir"] + "/concat-db/kegg-genes-concat-db.aa.fa.gz",
         done_mmseqs_db=config["rdir"] + "/concat-db/kegg-genes-concat-db",
-        # done_cluster_fasta=expand(
-        #     config["rdir"] + "/kegg-genes-subdb/{ko}/{ko}.aa.fa.gz", ko=kos
-        # ),
         done_gene_ids=expand(
             config["rdir"] + "/kegg-genes-subdb/{ko}/{ko}-gene_ids.tsv", ko=kos
         ),
@@ -80,8 +75,6 @@ rule all:
 """
 ##### load rules #####
 """
-
-
 include: "rules/kegg-genes-concatenate.smk"
 include: "rules/kegg-genes-subdb.smk"
 include: "rules/kegg-genes-cluster.smk"
